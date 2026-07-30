@@ -1,0 +1,3 @@
+⚡ QCAL-cQED-v1 gRPC Server @ 0.0.0.0:50051
+   6 endpoints · Sello: ∴𓂀Ω∞³Φ
+   Para verificar: grpcurl -protoset <(cat proto/qcal_qnd_api.proto) localhost:50051 list

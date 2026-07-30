@@ -1,0 +1,3 @@
+cargo:rerun-if-changed=../proto/qcal_qnd_api.proto
+cargo:rerun-if-changed=../proto/qcal_qnd_api.proto
+cargo:rerun-if-changed=../proto
