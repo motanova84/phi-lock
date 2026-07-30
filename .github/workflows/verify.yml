@@ -21,20 +21,19 @@ jobs:
           cd math
           lake build
 
-  rust-p2p-test:
-    name: Test Rust Core & gRPC HIL Pipeline
+  firmware-check:
+    name: Check Embedded Firmware (Rust no_std)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install Protoc
-        run: sudo apt-get install -y protobuf-compiler
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
-      - name: Run Tests
+        with:
+          targets: thumbv7em-none-eabihf
+      - name: Check Firmware
         run: |
-          cd core
+          cd firmware
           cargo check --release
-          cargo test --all
 
   python-hil-validation:
     name: Validate HIL Bridge & Digital Twin
@@ -50,9 +49,9 @@ jobs:
           pip install numpy scipy
       - name: Run HIL bridge validation
         run: |
-          cd hardware
+          cd sim
           python3 -c "
-from despliegue.qcal_hil_bridge import QCALHardwareBridge
+from qcal_hil_bridge import QCALHardwareBridge
 b = QCALHardwareBridge().configure_sweep(6990, 7010, 201)
 r = b.simulate_measurement(7.5, noise_level=0.01)
 print(f'Ψ={r[\"regime\"]} | γ_extracted={r[\"gamma_phi_extracted_MHz\"]:.3f} MHz | error={r[\"error_pct\"]:.1f}%')

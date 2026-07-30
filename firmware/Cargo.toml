@@ -1,0 +1,15 @@
+[package]
+name = "phi-lock-firmware"
+version = "0.1.0"
+edition = "2021"
+description = "Φ-LOCK chip firmware — embedded Rust no_std"
+
+[dependencies]
+cortex-m = "0.7"
+cortex-m-rt = "0.7"
+panic-halt = "0.2"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
