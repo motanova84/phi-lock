@@ -19,3 +19,5 @@ __pycache__/
 *.swp
 target/
 sim/target/
+target/
+sim/target/
