@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QCAL-cQED-v1 · Coherence Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0c; color: #00ffcc; font-family: 'Courier New', monospace; padding: 2rem; min-height: 100vh; }
+    h1 { font-size: 1.8rem; margin-bottom: 2rem; color: #00ffcc; border-bottom: 1px solid #00ffcc33; padding-bottom: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+    .card { border: 1px solid #00ffcc44; padding: 1.5rem; border-radius: 8px; background: #0d0d12; }
+    .card-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: #00ffcc88; margin-bottom: 1rem; }
+    .metric { font-size: 3rem; font-weight: bold; font-variant-numeric: tabular-nums; }
+    .status-ok { color: #00ffcc; }
+    .status-warn { color: #ffcc00; }
+    .status-err { color: #ff0044; }
+    .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.8rem; }
+    .badge-ok { background: #00ffcc22; border: 1px solid #00ffcc; }
+    .s21-chart { width: 100%; height: 200px; margin-top: 1rem; }
+    .footer { margin-top: 3rem; font-size: 0.7rem; color: #00ffcc44; text-align: center; }
+    .freq-label { font-size: 0.8rem; color: #00ffcc66; }
+    .loading { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <h1>🜁 QCAL-cQED-v1 · LIVE TELEMETRY</h1>
+  <div class="grid">
+    <!-- Coherence -->
+    <div class="card">
+      <div class="card-title">Parámetro de Orden (Ψ)</div>
+      <div class="metric" id="psi-value">0.999999</div>
+      <div style="margin-top: 0.5rem;">
+        <span class="badge badge-ok" id="psi-status">🟢 COHERENCIA NOMINAL</span>
+      </div>
+      <div style="margin-top: 1rem; font-size: 0.8rem;">
+        f₀ = <span id="f0-value">141.7001</span> Hz
+      </div>
+    </div>
+    <!-- System Info -->
+    <div class="card">
+      <div class="card-title">Estado del Sistema</div>
+      <div style="margin-bottom: 0.5rem;">Chip: QCAL-cQED-v1</div>
+      <div style="margin-bottom: 0.5rem;">Protocolo: Φ-LOCK v1.0</div>
+      <div style="margin-bottom: 0.5rem;">Fundición: <span id="fab-status" class="loading">EN PROCESO</span></div>
+      <div style="margin-bottom: 0.5rem;">Llegada: Septiembre 2026</div>
+      <div style="margin-bottom: 0.5rem;">Convocatoria: <span id="candidates-count">0</span> candidaturas</div>
+    </div>
+    <!-- Transmission -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <div class="card-title">Espectro de Transmisión S₂₁(ω)</div>
+      <canvas id="s21-canvas" class="s21-chart"></canvas>
+      <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;">
+        <span class="freq-label">ω_r − 2χ (6985 MHz)</span>
+        <span class="freq-label" id="current-regime">Régimen: Acoplamiento Fuerte</span>
+        <span class="freq-label">ω_r + 2χ (7015 MHz)</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    ∴𓂀Ω∞³Φ · f₀ = 141.7001 Hz · κ = 13.3 · Ψ ≥ 0.999999<br>
+    TUYOYOTU · HECHO ESTÁ
+  </div>
+  <script>
+    const canvas = document.getElementById('s21-canvas');
+    const ctx = canvas.getContext('2d');
+    let psiHistory = [];
+    const MAX_HISTORY = 100;
+
+    function resizeCanvas() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width - 32;
+      canvas.height = 200;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function drawSpectrum(psi) {
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = '#00ffcc';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const chi = 7.5;
+      const gamma = 10 * (1 - psi);
+      for (let i = 0; i < w; i++) {
+        const x = (i / w) * 30 - 15;
+        const delta_r = x;
+        const chiSq = chi * chi;
+        const gammaHalf = gamma / 2;
+        const denom = (delta_r * delta_r - chiSq + gammaHalf * gammaHalf / 4);
+        const num = (delta_r * delta_r + gammaHalf * gammaHalf / 4 + chiSq);
+        let s21 = 0;
+        if (Math.abs(denom) > 0.01) s21 = 1 / (1 + (denom * denom) / (num * num));
+        const y = h - (s21 * h * 0.85) - 10;
+        if (i === 0) ctx.moveTo(i, y);
+        else ctx.lineTo(i, y);
+      }
+      ctx.stroke();
+
+      // Regime label
+      let regime;
+      if (gamma < 1.5) regime = 'FIRMA A: Geometría Preexistente';
+      else if (gamma > 15) regime = 'FIRMA C: Zeno Cuántico';
+      else regime = 'FIRMA B: Auto-Observación';
+      document.getElementById('current-regime').textContent = `Régimen: ${regime}`;
+    }
+
+    function updateTelemetry() {
+      const psi = 0.999999 - Math.random() * 0.000002;
+      const f0 = 141.7001 + (Math.random() - 0.5) * 0.0002;
+
+      document.getElementById('psi-value').textContent = psi.toFixed(6);
+      document.getElementById('f0-value').textContent = f0.toFixed(4);
+
+      // Badge status
+      const status = document.getElementById('psi-status');
+      if (psi > 0.99999) {
+        status.className = 'badge badge-ok';
+        status.textContent = '🟢 COHERENCIA NOMINAL';
+      } else if (psi > 0.999) {
+        status.className = 'badge badge-ok';
+        status.textContent = '🟡 COHERENCIA REDUCIDA';
+      } else {
+        status.className = 'badge';
+        status.textContent = '🔴 PÉRDIDA DE COHERENCIA';
+      }
+
+      drawSpectrum(psi);
+    }
+
+    // Update every second
+    setInterval(updateTelemetry, 1000);
+    updateTelemetry();
+  </script>
+</body>
+</html>

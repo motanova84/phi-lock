@@ -43,6 +43,8 @@
 
 ---
 
+![Coherence](https://img.shields.io/badge/%CE%A8-0.999999%20%C2%B7%20Coherente-00ffcc?style=for-the-badge)
+
 ## 🚀 Inicio Rápido
 
 ```bash

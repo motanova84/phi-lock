@@ -1,0 +1,37 @@
+name: 🌱 Good First Issue
+description: Primera contribución al ecosistema Φ-LOCK
+title: "[GOOD FIRST ISSUE] "
+labels: ["good-first-issue", "help-wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Esta issue está diseñada para tu primera contribución al ecosistema Φ-LOCK / QCAL-cQED-v1.
+        Instrucciones detalladas en el cuerpo de la issue.
+  - type: textarea
+    id: task
+    attributes:
+      label: Tarea
+      description: Describe qué hay que hacer y cómo hacerlo
+      value: |
+        ## Tarea: [Implementar X]
+
+        ### Contexto
+        [Dos líneas sobre por qué esto es necesario]
+
+        ### Cómo hacerlo
+        1. Fork del repositorio
+        2. [Pasos concretos]
+        3. Abre un Pull Request
+
+        ### Criterios de aceptación
+        - [ ] Test unitario pasa
+        - [ ] Código documentado
+        - [ ] Sin errores de compilación
+
+        ### Recompensa
+        - Créditos πCODE por contribución
+        - Menciones en el Benchmark Report
+        - Elegibilidad para el Vórtice Software
+    validations:
+      required: true
