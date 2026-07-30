@@ -1,0 +1,19 @@
+# Build outputs
+/target/
+/build/
+/lake-packages/
+/.lake/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+*~
+
+# IDE
+.idea/
+.vscode/
+*.swp

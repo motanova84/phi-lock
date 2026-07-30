@@ -1,0 +1,61 @@
+name: Φ-LOCK Coherence & Build Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lean-verification:
+    name: Verify Formal Theorems (Lean 4)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Elan
+        run: |
+          curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+      - name: Build & Check Lean 4 Proofs
+        run: |
+          cd math
+          lake build
+
+  rust-p2p-test:
+    name: Test Rust Core & gRPC HIL Pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Protoc
+        run: sudo apt-get install -y protobuf-compiler
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: Run Tests
+        run: |
+          cd core
+          cargo check --release
+          cargo test --all
+
+  python-hil-validation:
+    name: Validate HIL Bridge & Digital Twin
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install numpy scipy
+      - name: Run HIL bridge validation
+        run: |
+          cd hardware
+          python3 -c "
+from despliegue.qcal_hil_bridge import QCALHardwareBridge
+b = QCALHardwareBridge().configure_sweep(6990, 7010, 201)
+r = b.simulate_measurement(7.5, noise_level=0.01)
+print(f'Ψ={r[\"regime\"]} | γ_extracted={r[\"gamma_phi_extracted_MHz\"]:.3f} MHz | error={r[\"error_pct\"]:.1f}%')
+assert r['error_pct'] < 20, 'HIL error too high'
+print('✅ HIL Bridge validation passed')
+"

@@ -1,0 +1,20 @@
+[package]
+name = "phi-lock-core"
+version = "0.1.0"
+edition = "2021"
+description = "Φ-LOCK P2P consensus engine — Kuramoto phase synchronization"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+tonic = "0.11"
+prost = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rand = "0.8"
+
+[build-dependencies]
+tonic-build = "0.11"
+
+[[bin]]
+name = "phi-lock-node"
+path = "src/main.rs"

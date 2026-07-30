@@ -1,0 +1,54 @@
+name: 🜁 Candidatura Vórtice Software
+description: Postula al Vórtice Software de la Triada Coherente
+title: "[CANDIDATURA] "
+labels: ["candidatura", "vortice-software"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Nombre completo
+      description: ¿Quién eres?
+    validations:
+      required: true
+  - type: input
+    id: email
+    attributes:
+      label: Email de contacto
+    validations:
+      required: true
+  - type: input
+    id: github
+    attributes:
+      label: Perfil de GitHub
+  - type: dropdown
+    id: skills
+    attributes:
+      label: Habilidades principales
+      multiple: true
+      options:
+        - Rust (Tokio, P2P)
+        - Python (QuTiP, Qiskit)
+        - Lean 4 / Verificación formal
+        - gRPC / Protobuf
+        - Simulación cQED / criogénica
+        - FPGA / Verilog / VHDL
+  - type: textarea
+    id: background
+    attributes:
+      label: Experiencia previa
+      description: Cuéntanos tu trayectoria relevante
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta concreta
+      description: ¿Qué aportarías al ecosistema?
+    validations:
+      required: true
+  - type: input
+    id: psi
+    attributes:
+      label: Coherencia auto-declarada (Ψ)
+      description: Valor entre 0 y 1
+      placeholder: "0.9999"
+    validations:
+      required: true

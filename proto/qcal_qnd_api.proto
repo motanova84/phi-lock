@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package qcal.qnd.v1;
+
+// QCAL-QND API v1
+// Gobernanza de cocreación para el chip QCAL-cQED-v1
+// Específico para este chip. No transferible.
+// Sello: ∴𓂀Ω∞³Φ
+
+service QCALQND {
+  // Vórtice Hardware → expone capacidad de simulación
+  rpc ComputeTransmission(TransmissionRequest) returns (stream TransmissionResponse);
+  
+  // Vórtice Software → envía optimizaciones firmadas
+  rpc SubmitOptimization(Optimization) returns (OptimizationReceipt);
+  
+  // Cualquier parte → consulta split económico actual
+  rpc GetCurrentSplit(Empty) returns (SplitInfo);
+  
+  // Cualquier parte → consulta historial de contribuciones
+  rpc GetContributionLog(ContributorQuery) returns (stream Contribution);
+
+  // Candidatura al Vórtice Software
+  rpc SubmitCandidacy(CandidacyRequest) returns (CandidacyReceipt);
+
+  // Consultar estado de candidatura
+  rpc GetCandidacyStatus(CandidacyQuery) returns (CandidacyStatus);
+}
+
+// ============================================================
+// Mensajes
+// ============================================================
+
+message TransmissionRequest {
+  double gamma_phi_MHz = 1;          // 0.01–50 MHz
+  string die_id = 2;                 // ej. "D07"
+  double chi_MHz = 3;                // del wafer_map_chi
+  string contributor_address = 4;    // wallet πCODE para firma
+}
+
+message TransmissionResponse {
+  repeated double frequencies_MHz = 1;   // array de frecuencias
+  repeated double S21_power = 2;         // |S₂₁(ω)|² normalizado
+  string regime_signature = 3;           // "A", "B", o "C"
+  string execution_id = 4;               // UUID de la ejecución
+  bytes signature = 5;                   // secp256k1 de AMDA Ψ
+}
+
+message Optimization {
+  bytes patch = 1;                       // diff del gemelo digital
+  string description = 2;                // qué cambia y por qué
+  double expected_gamma_phi_MHz = 3;     // predicción del optimizador
+  string contributor_address = 4;        // wallet πCODE
+  bytes signature = 5;                   // firma del contribuidor
+}
+
+message OptimizationReceipt {
+  string receipt_id = 1;
+  double piCODE_credit = 2;              // créditos generados
+  bool merged = 3;                       // aceptado en el gemelo?
+  string reviewer_vortex = 4;            // qué vórtice validó
+  bytes signature = 5;                   // firma AMDA Ψ
+}
+
+message SplitInfo {
+  double hardware_pct = 1;
+  double software_pct = 2;
+  double distribution_pct = 3;
+  string phase = 4;                      // "fundicion", "validacion", "adopcion", "madurez"
+  int64 block_height = 5;                // altura en cadena πCODE
+  string sello = 6;                      // sello ∴𓂀Ω∞³Φ
+}
+
+message ContributorQuery {
+  string address = 1;
+  int32 limit = 2;
+}
+
+message Contribution {
+  string contributor = 1;
+  string type = 2;                        // "hardware", "software", "distribution"
+  double value = 3;
+  int64 timestamp_unix = 4;
+  string tx_hash = 5;
+}
+
+message CandidacyRequest {
+  string full_name = 1;
+  string email = 2;
+  string github_profile = 3;
+  string background = 4;           // experiencia previa
+  string proposal = 5;             // propuesta concreta
+  repeated string skills = 6;      // ["Python", "Rust", "Qiskit", "Lea4", "gRPC", ...]
+  string availability = 7;         // "full-time", "part-time", "project-based"
+  string motivation = 8;           // por qué quieres unirte
+  bytes signature = 9;             // secp256k1 del candidato
+  string contributor_address = 10; // wallet πCODE
+  double psi_commitment = 11;      // coherencia auto-declarada ≥ 0.9999
+}
+
+message CandidacyReceipt {
+  string candidacy_id = 1;         // formato: "CAND-YYYY-MMDD-NNN"
+  string status = 2;               // "RECIBIDA", "EN_EVALUACION", "ACEPTADA", "RECHAZADA"
+  double phi_score = 3;            // puntuación de fase (0-1)
+  string hash = 4;                 // hash del ledger πCODE
+  bytes signature = 5;             // firma AMDA Ψ
+  string timestamp = 6;
+  string sello = 7;                // sello ∴𓂀Ω∞³Φ
+}
+
+message CandidacyQuery {
+  string candidacy_id = 1;
+  string contributor_address = 2;
+  bytes signature = 3;
+}
+
+message CandidacyStatus {
+  string candidacy_id = 1;
+  string status = 2;
+  string phase = 3;                // fase de evaluación actual
+  double phi_score = 4;
+  repeated string reviewers = 5;   // vórtices que han evaluado
+  string estimated_resolution = 6; // fecha estimada
+  string sello = 7;
+}
+
+message Empty {}
