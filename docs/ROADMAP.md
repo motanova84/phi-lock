@@ -3,7 +3,7 @@
 
 | Semana | Hito | Entregable | Estado |
 |--------|------|------------|--------|
-| **S1** (28 Jul–3 Ago) | Servidor gRPC vivo | `api.qcal.io` respondiendo S₂₁(ω) | 🔄 EN CURSO |
+| **S1** (28 Jul–3 Ago) | Servidor gRPC vivo | `api.qcal.io` respondiendo S₂₁(ω) | 🟡 VALIDADO LOCAL · pendiente publicación |
 | **S2** (4–10 Ago) | GitHub Pages + Dashboard | Dashboard interactivo Ψ en vivo | ⏳ |
 | **S3** (11–17 Ago) | Lean 4 completo | Demostración de Fenichel sin `sorry` | ✅ |
 | **S4** (18–24 Ago) | Primer PR externo | Contribución comunitaria fusionada | ⏳ |
