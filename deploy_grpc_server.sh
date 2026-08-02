@@ -9,7 +9,44 @@ GREEN='\033[0;32m'; CYAN='\033[0;36m'
 YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 PORT=50051
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-LOG_FILE="${SCRIPT_DIR}/sim/grpc_server.log"
+LOG_FILE="${SCRIPT_DIR}/grpc_server.log"
+
+install_dep() {
+    local dep="$1"
+    if command -v "${dep}" &>/dev/null; then
+        return 0
+    fi
+
+    echo -e "${YELLOW}! ${dep} no encontrado. Instalando...${NC}"
+    case "$(uname -s)" in
+        Darwin)
+            if ! command -v brew &>/dev/null; then
+                echo -e "${RED}✗ Homebrew no está instalado. Instálalo primero.${NC}"
+                exit 1
+            fi
+            brew install "${dep}"
+            ;;
+        Linux)
+            if ! command -v apt-get &>/dev/null; then
+                echo -e "${RED}✗ No hay instalador automático para ${dep} en este sistema.${NC}"
+                exit 1
+            fi
+            if [[ "${dep}" == "protoc" ]]; then
+                sudo apt-get update && sudo apt-get install -y protobuf-compiler
+            elif [[ "${dep}" == "cloudflared" ]]; then
+                echo -e "${YELLOW}! cloudflared no está instalado; se omitirá túnel público.${NC}"
+                return 0
+            else
+                echo -e "${RED}✗ Instalación automática no definida para ${dep}.${NC}"
+                exit 1
+            fi
+            ;;
+        *)
+            echo -e "${RED}✗ Sistema no soportado para instalación automática.${NC}"
+            exit 1
+            ;;
+    esac
+}
 
 echo -e "${CYAN}======================================================================${NC}"
 echo -e "${CYAN} 🜁 INICIANDO DESPLIEGUE gRPC LIVE · QCAL-cQED-v1 ${NC}"
@@ -18,10 +55,7 @@ echo -e "${CYAN}================================================================
 # 1. Dependencias
 echo -e "\n${YELLOW}[1/5] Verificando dependencias...${NC}"
 for cmd in cargo protoc cloudflared; do
-    if ! command -v $cmd &>/dev/null; then
-        echo -e "${YELLOW}! $cmd no encontrado. Instalando..."
-        brew install $cmd
-    fi
+    install_dep "$cmd"
 done
 echo -e "${GREEN}✓ Dependencias listas${NC}"
 
@@ -56,6 +90,11 @@ fi
 # 5. Túnel Cloudflare
 echo -e "\n${YELLOW}[5/5] Abriendo túnel público...${NC}"
 echo -e "${CYAN}----------------------------------------------------------------------${NC}"
+if ! command -v cloudflared &>/dev/null; then
+    echo -e "${YELLOW}! cloudflared no disponible. Servidor local activo en localhost:${PORT}${NC}"
+    exit 0
+fi
+
 cloudflared tunnel --url "http://localhost:${PORT}" --http2-origin 2>&1 | while read -r line; do
     echo -e "${CYAN}${line}${NC}"
     if [[ "$line" =~ https://[a-zA-Z0-9-]+\.trycloudflare\.com ]]; then
